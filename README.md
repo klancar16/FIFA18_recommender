@@ -1,7 +1,8 @@
 # Recommending system for FIFA18
 
 Project done for a course Recommender Systems at University of Tampere.  
-In collaboration with: [Karsten Paulussen](https://github.com/karsten0702)
+In collaboration with: [Karsten Paulussen](https://github.com/karsten0702)  
+Data used is from public available data set on Kaggle: [FIFA 18 Complete Player Dataset](https://www.kaggle.com/thec03u5/fifa-18-demo-player-dataset)
 
 One of the most popular feature in FIFA18 is the career mode, where user's goal is to improve his team and win as much competitions as possible. It is hard for the user to decide which players to buy to maximally improve their team by taking into account all different attributes. This reports presents an application that helps the user by both determining the worst player in the specific team and by recommending a list of players that are seen as possible replacement to improve the team. The application offers a basic graphic user interface to improve users' experience. The recommender was evaluated subjectively by both authors. We believe that both the way the worst player and the top five recommendations can be considered as good recommendations.
 
