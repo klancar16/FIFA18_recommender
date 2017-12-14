@@ -1,0 +1,168 @@
+<!doctype html>
+<head>
+    <title>Recommender Systems</title>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type=text/javascript src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script type=text/javascript src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#change-team-button').click(function(){
+                var team_name = $('#team-select').val();
+                 $.ajax({
+                    type : "POST",
+                    url : "{{ url_for('change_team') }}",
+                    data: JSON.stringify({'team': team_name}, null, '\t'),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function(result) {
+                        location.reload();
+                    }
+                });
+            });
+            $('#formation-select').change(function(){
+                var new_formation = $('#formation-select').val();
+                 $.ajax({
+                    type : "POST",
+                    url : "{{ url_for('change_formation') }}",
+                    data: JSON.stringify({'formation': new_formation}, null, '\t'),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function(result) {
+                        location.reload();
+                    }
+                });
+            });
+            $('#constraints-button').click(function(){
+                var min_price = $('#min_price').val();
+                if (min_price.length == 0) min_price = -1;
+                var max_price = $('#max_price').val();
+                if (max_price.length == 0) max_price = -1;
+                var min_age = $('#min_age').val();
+                if (min_age.length == 0) min_age = -1;
+                var max_age = $('#max_age').val();
+                if (max_age.length == 0) max_age = -1;
+                var min_wage = $('#min_wage').val();
+                if (min_wage.length == 0) min_wage = -1;
+                var max_wage = $('#max_wage').val();
+                if (max_wage.length == 0) max_wage = -1;
+                var min_overall = $('#min_overall').val();
+                if (min_overall.length == 0) min_overall = -1;
+                var max_overall = $('#max_overall').val();
+                if (max_overall.length == 0) max_overall = -1;
+                $.ajax({
+                    type : "POST",
+                    url : "{{ url_for('constraints') }}",
+                    data: JSON.stringify({
+                        'min_price': min_price,
+                        'max_price': max_price,
+                        'min_age': min_age,
+                        'max_age': max_age,
+                        'min_wage': min_wage,
+                        'max_wage': max_wage,
+                        'min_overall': min_overall,
+                        'max_overall': max_overall
+                    }, null, '\t'),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function(result) {
+                        location.reload();
+                    }
+                });
+            });
+            $('#rem-constraints-button').click(function(){
+                $.ajax({
+                    type : "POST",
+                    url : "{{ url_for('rem_constraints') }}",
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function(result) {
+                        location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container p-3 mb-2 bg-light text-dark">
+        <div class="row">
+            <div class="col-lg-6 border border-dark">
+                <h2>Team</h2>
+                <div class="input-group offset-lg-1">
+                    <span class="input-group-addon">Team</span>
+                    <select id='team-select'>
+                        {% for team in teams %}
+                            {% if cur_team == team %}
+                                <option selected>{{team}}</option>
+                            {% else %}
+                                <option>{{team}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <button id='change-team-button' type="button" class="btn btn-secondary">Search</button>
+
+                </div>
+            </div>
+            <div class="col-lg-6 border border-dark">
+                <h2>Constraints</h2>
+                <div class="row">
+                    <div class="input-group offset-lg-1">
+                        <span class="input-group-addon col-lg-3">Transferprice</span>
+                        <input type="text" class="form-control" placeholder="Min price" id="min_price">
+                        <input type="text" class="form-control" placeholder="Max price" id="max_price">
+                    </div>
+                    <div class="input-group offset-lg-1">
+                        <span class="input-group-addon col-lg-3">Wage</span>
+                        <input type="text" class="form-control" placeholder="Min wage" id="min_wage">
+                        <input type="text" class="form-control" placeholder="Max wage" id="max_wage">
+                    </div>
+                    <div class="input-group offset-lg-1">
+                        <span class="input-group-addon col-lg-3">Age</span>
+                        <input type="text" class="form-control" placeholder="Min age" id="min_age">
+                        <input type="text" class="form-control" placeholder="Max age" id="max_age">
+                    </div>
+                    <div class="input-group offset-lg-1">
+                        <span class="input-group-addon col-lg-3">Overall</span>
+                        <input type="text" class="form-control" placeholder="Min overall" id="min_overall">
+                        <input type="text" class="form-control" placeholder="Max overall" id="max_overall">
+                    </div>
+                </div>
+                <button id='constraints-button' type="button" class="btn btn-secondary justify-content-start">Search</button>
+                <button id='rem-constraints-button' type="button" class="btn btn-secondary justify-content-start">Remove all constraints</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 border border-dark">
+                <h2>
+                <div class="input-group justify-content-between">
+                    <span>Starting Eleven</span>
+                    <select id='formation-select'>
+                        {% for formation in formations %}
+                            {% if cur_formation == formation %}
+                                <option selected>{{formation}}</option>
+                            {% else %}
+                                <option>{{formation}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                </h2>
+                Worst player: <label id="worst">{{ worst_player }}</label>
+                {{ tables[1]|safe }}
+            </div>
+            <div class='col-lg-6 border border-dark'>
+                <h2>Top 5 recommendations</h2>
+                <div class="container">
+                    {{ tables[0]|safe }}
+                 </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            var worst = $('#worst').text();
+            console.log(worst);
+            $('table.first-eleven tbody tr').filter(':contains(' + worst + ')').css('background-color', '#ff767e')
+        });
+    </script>
+</body>
