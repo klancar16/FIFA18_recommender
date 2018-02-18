@@ -37,11 +37,13 @@ def first_team(formation, team_data):
     first_eleven = pd.DataFrame()
     for spot in form_list:
         limited_data = team_data.loc[team_data['Preferred Positions'].apply(lambda x: spot in x)]
-        while len(limited_data) == 0:
+        if len(limited_data) == 0:
             positions = get_similar_positions(spot)
             for pos in positions:
                 limited_data = limited_data.append(
                     team_data.loc[team_data['Preferred Positions'].apply(lambda x: pos in x)])
+        if len(limited_data) == 0:
+            limited_data = team_data
         player = limited_data[spot].idxmax()
         player_pd = limited_data.loc[[player]]
         player_pd['Position'] = spot
@@ -122,7 +124,7 @@ def first_eleven_stats(first_eleven):
     return (avg_stats, sd_stats)
 
 
-def find_similar_to_team(team_stats, filtered_list):
+def find_similar_to_team(team_stats, filtered_list, similarity='pearson'):
     avg_stats = team_stats[0]
     sd_stats = team_stats[1]
     avg_stats['Age'] = 21
@@ -136,18 +138,20 @@ def find_similar_to_team(team_stats, filtered_list):
 
     avg_series = pd.Series(avg_stats.flatten(), index=fil_list.columns)
 
-    pearson_sim = fil_list.corrwith(avg_series, axis=1)
-    # cos_sim = cosine_similarity(fil_list, avg_stats)
-    # minkowski_sim = []
-    # for index, row in fil_list.iterrows():
-    #     minkowski_sim.append(minkowski(row.values, avg_stats.flatten(), p=2))
+    if similarity == 'pearson':
+        pearson_sim = fil_list.corrwith(avg_series, axis=1)
+        filtered_list['pearson'] = pearson_sim
+        return filtered_list.sort_values(['pearson'], ascending=False)
 
-    filtered_list['pearson'] = pearson_sim
-    # filtered_list['cosine'] = pd.Series([x for row in cos_sim for x in row], index=filtered_list.index)
-    # filtered_list['minkowski'] = pd.Series(minkowski_sim, index=filtered_list.index)
+    if similarity == 'cosine':
+        cos_sim = cosine_similarity(fil_list, avg_stats)
+        filtered_list['cosine'] = pd.Series([x for row in cos_sim for x in row], index=filtered_list.index)
+        return filtered_list.sort_values(['cosine'], ascending=False)
 
-    # print(filtered_list.sort_values(['cosine'], ascending=False).head(5))
-    # print(filtered_list.sort_values(['pearson'], ascending=False).head(5))
-    # print(filtered_list.sort_values(['minkowski'], ascending=False).head(5))
+    if similarity == 'minkowski':
+        minkowski_sim = []
+        for index, row in fil_list.iterrows():
+            minkowski_sim.append(minkowski(row.values, avg_stats.flatten(), p=2))
 
-    return filtered_list.sort_values(['pearson'], ascending=False)
+        filtered_list['minkowski'] = pd.Series(minkowski_sim, index=filtered_list.index)
+        return filtered_list.sort_values(['minkowski'], ascending=False)

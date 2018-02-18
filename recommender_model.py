@@ -1,5 +1,4 @@
 from flask import *
-import pandas as pd
 from data_preprocess import read_data, group_by_team
 from data_logic import first_team, sort_first_eleven, first_eleven_stats, find_similar_to_team, \
     filtering_our_constraints, filtering_user_constraints
