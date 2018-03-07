@@ -2,13 +2,14 @@ from flask import *
 from data_preprocess import read_data, group_by_team
 from data_logic import first_team, sort_first_eleven, first_eleven_stats, find_similar_to_team, \
     filtering_our_constraints, filtering_user_constraints
+import os
 
 app = Flask(__name__)
 app.config.update(
     DEBUG=True,
     TEMPLATES_AUTO_RELOAD=True
 )
-app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+app.secret_key = os.urandom(24)
 dat = read_data()
 team_data = group_by_team(dat)
 
@@ -57,15 +58,21 @@ def show_tables():
     if session['constraints'] != '':
         filtered_recommends = filtering_user_constraints(filtered_recommends, json.loads(session['constraints']))
 
-    sorted_similar = find_similar_to_team(fr_el_stats, filtered_recommends)
+    sorted_similar_per = find_similar_to_team(fr_el_stats, filtered_recommends, similarity='pearson')
+    sorted_similar_min = find_similar_to_team(fr_el_stats, filtered_recommends, similarity='minkowski')
+    sorted_similar_cos = find_similar_to_team(fr_el_stats, filtered_recommends, similarity='cosine')
 
     return render_template('index.html',
-                           tables=[sorted_similar.head(5)[['Name', 'Age', 'Overall', 'Potential','Wage', 'Club']].
+                           tables=[sorted_similar_per.head(5)[['Name', 'Age', 'Overall', 'Potential','Wage', 'Club']].
+                                        to_html(classes="table table-striped", index=False),
+                                   sorted_similar_cos.head(5)[['Name', 'Age', 'Overall', 'Potential','Wage', 'Club']].
+                                        to_html(classes="table table-striped", index=False),
+                                   sorted_similar_min.head(5)[['Name', 'Age', 'Overall', 'Potential','Wage', 'Club']].
                                         to_html(classes="table table-striped", index=False),
                                    start_eleven[['Position', 'Name', 'Age', 'Overall', 'Potential', 'Wage']].
                                         to_html(classes="table table-striped first-eleven", index=False)
                                    ],
-                           teams=['Arsenal', 'AS Monaco', 'Paris Saint-Germain'],
+                           teams=['Arsenal', 'FC Barcelona', 'Manchester United', 'Liverpool', 'Paris Saint-Germain'],
                            cur_team=session['team'],
                            formations=['433', '442', '352'],
                            cur_formation=session['formation'],

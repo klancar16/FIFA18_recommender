@@ -148,12 +148,21 @@
                 </div>
                 </h2>
                 Worst player: <label id="worst">{{ worst_player }}</label>
-                {{ tables[1]|safe }}
+                {{ tables[3]|safe }}
             </div>
             <div class='col-lg-6 border border-dark'>
                 <h2>Top 5 recommendations</h2>
+                <h3>Pearson</h3>
                 <div class="container">
                     {{ tables[0]|safe }}
+                 </div>
+                <h3>Minkowski</h3>
+                <div class="container">
+                    {{ tables[1]|safe }}
+                 </div>
+                <h3>Cosine</h3>
+                <div class="container">
+                    {{ tables[2]|safe }}
                  </div>
             </div>
         </div>
